@@ -21,7 +21,6 @@ return new class extends Migration
             $table->enum('visibility', ['public', 'private'])->default('public');
             $table->enum('gender', ['male','female'])->nullable();
             $table->timestamps();
-            $table->timestamps();
         });
     }
 

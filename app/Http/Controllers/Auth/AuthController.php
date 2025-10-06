@@ -20,6 +20,7 @@ class AuthController extends Controller
         // Registration logic here
         $user = User::create([
             'username' => $request->string('username'),
+            'email'    => $request->string('email'),
             'password' => Hash::make($request->string('password')),
         ]);
 
@@ -40,7 +41,10 @@ class AuthController extends Controller
     }
 
     public function login(LoginRequest $request) {
-        $user = User::where('username', $request->string('username'))->first();
+        $identifier = $request->string('identifier');
+        $column = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
+
+        $user = User::where($column, $identifier)->first();
 
         if (!$user || !Hash::check($request->string('password'), $user->password)) {
             return response()->json([

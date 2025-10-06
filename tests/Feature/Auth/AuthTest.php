@@ -39,6 +39,7 @@ class AuthTest extends TestCase
     {
         $res = $this->postJson('/api/register', [
             'username' => 'socialAccount',
+            'email'    => 'social@example.com',
             'password' => '@_*Social123',
             'password_confirmation' => '@_*Social123',
             'device_name' => 'Samsung-SM-A107F',
@@ -46,11 +47,11 @@ class AuthTest extends TestCase
 
         $res->assertCreated()
             ->assertJsonStructure([
-                'data' => ['user' => ['id', 'username'], 'token', 'token_type'],
+                'data' => ['user' => ['id', 'username', 'email'], 'token', 'token_type'],
                 'meta' => ['message'],
             ]);
 
-        $this->assertDatabaseHas('users', ['username' => 'socialAccount']);
+        $this->assertDatabaseHas('users', ['username' => 'socialAccount', 'email' => 'social@example.com']);
     }
 
     #[Test]
@@ -58,12 +59,13 @@ class AuthTest extends TestCase
     {
         User::factory()->create([
             'username' => 'socialAccount',
+            'email'    => 'social@example.com',
             'password' => Hash::make('@_*Social123'),
         ]);
 
         $res = $this->postJson('/api/login', [
-            'username' => 'socialAccount',
-            'password' => 'Wrong-pass111', // salah
+            'identifier'  => 'socialAccount',
+            'password'    => 'Wrong-pass111', // salah
             'device_name' => 'Samsung-SM-A107F',
         ]);
 
@@ -76,11 +78,12 @@ class AuthTest extends TestCase
     {
         $user = User::factory()->create([
             'username' => 'socialAccount',
+            'email'    => 'social@example.com',
             'password' => Hash::make('@_*Social123'),
         ]);
 
         $res = $this->postJson('/api/login', [
-            'username' => 'socialAccount',
+            'identifier' => 'socialAccount',
             'password' => '@_*Social123',
             'device_name' => 'Samsung-SM-A107F',
         ]);
@@ -88,12 +91,19 @@ class AuthTest extends TestCase
         $res->assertOk()
             ->assertJsonStructure([
                 'data' => [
-                    'user'        => ['id', 'username'],
+                    'user'        => ['id', 'username', 'email'],
                     'token',
                     'token_type',
                 ],
                 'meta' => ['message'],
             ]);
+
+        // via email
+        $res = $this->postJson('/api/login', [
+            'identifier' => 'social@example.com',
+            'password'   => '@_*Social123',
+        ]);
+        $res->assertOk();
     }
 
     #[Test]

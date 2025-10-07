@@ -25,6 +25,7 @@ class AuthController extends Controller
         ]);
 
         event(new Registered($user)); // untuk kebutuhan emailVerify
+        // $user->sendEmailVerificationNotification();
 
         // ======= Generate Token ======= -> IF DID NOT SET DEVICE NAME, USE UUID
         $tokenName = $request->string('device_name') ?: 'api-'.Str::uuid();

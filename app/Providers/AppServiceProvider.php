@@ -8,6 +8,7 @@ use Laravel\Sanctum\PersonalAccessToken;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Auth\Notifications\ResetPassword;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -28,17 +29,22 @@ class AppServiceProvider extends ServiceProvider
 
         // Batasi login attempts
         RateLimiter::for('login', function (Request $request) {
-        $email = (string) $request->email;
-        return [
-            Limit::perMinute(5)->by($email.$request->ip())->response(function () {
-                return response()->json([
-                    'error' => [
-                        'code'    => 'TOO_MANY_REQUESTS',
-                        'message' => 'Too many attempts. Try again soon.',
-                    ]
-                ], 429);
-            }),
-        ];
-    });
+            $email = (string) $request->email;
+            return [
+                Limit::perMinute(5)->by($email.$request->ip())->response(function () {
+                    return response()->json([
+                        'error' => [
+                            'code'    => 'TOO_MANY_REQUESTS',
+                            'message' => 'Too many attempts. Try again soon.',
+                        ]
+                    ], 429);
+                }),
+            ];
+        });
+        ResetPassword::createUrlUsing(function ($notifiable, string $token) {
+            $email = urlencode($notifiable->getEmailForPasswordReset());
+            // arahkan ke route bernama password.reset plus query email
+            return route('password.reset', ['token' => $token]) . "?email={$email}";
+        });
     }
 }

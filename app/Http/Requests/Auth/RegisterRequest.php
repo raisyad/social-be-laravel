@@ -22,7 +22,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username'    => ['required', 'string', 'alpha_dash', 'max:255', 'unique:users,username'],
+            'username'    => ['required', 'string', 'min:3', 'max:30', 'regex:/^(?=.{3,30}$)[A-Za-z0-9._-]+$/', 'unique:users,username'],
             'email'       => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password'    => ['required', \Illuminate\Validation\Rules\Password::min(8)->mixedCase()->numbers()->symbols(), 'confirmed'],
             'device_name' => ['nullable','string','max:100'],

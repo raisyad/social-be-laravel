@@ -15,7 +15,10 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->text('content');                            // pakai TEXT kalau nanti perlu >1000
+            $table->unsignedBigInteger('likes_count')->default(0);
+            $table->unsignedBigInteger('comments_count')->default(0);
             $table->timestamps();
+            $table->softDeletes();
 
             // Timeline per user atau join followees
             $table->index(['user_id', 'created_at']);

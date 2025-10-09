@@ -9,6 +9,7 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Auth\Notifications\ResetPassword;
+use Illuminate\Support\Facades\Validator;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,5 +47,10 @@ class AppServiceProvider extends ServiceProvider
             // arahkan ke route bernama password.reset plus query email
             return route('password.reset', ['token' => $token]) . "?email={$email}";
         });
+
+        Validator::extend('username', function ($attribute, $value) {
+            return is_string($value)
+                && preg_match('/^(?=.{3,30}$)[A-Za-z0-9._-]+$/', $value);
+        }, 'The :attribute may only contain letters, numbers, dots, underscores, and hyphens, length 3-30.');
     }
 }

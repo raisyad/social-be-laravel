@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('parent_comment_id')->nullable()->constrained('post_comments')->cascadeOnDelete();
             $table->string('content', 500);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['post_id', 'created_at']);
             $table->index('parent_comment_id');

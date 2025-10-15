@@ -70,6 +70,11 @@ class LikeController extends Controller
             }
         });
 
+        activity()->useLog('like')
+        ->causedBy($request->user())
+        ->performedOn($post)
+        ->log('post.liked');
+
         return response()->json(['meta' => ['message' => 'Liked']]);
     }
 
@@ -88,6 +93,11 @@ class LikeController extends Controller
                 $post->decrement('likes_count');
             }
         });
+
+        activity()->useLog('like')
+        ->causedBy($request->user())
+        ->performedOn($post)
+        ->log('post.unliked');
 
         return response()->json(['meta' => ['message' => 'Unliked']]);
     }

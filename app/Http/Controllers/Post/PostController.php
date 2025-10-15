@@ -126,6 +126,12 @@ class PostController extends Controller
                 }
             }
 
+            activity()->useLog('post')
+            ->causedBy($request->user())
+            ->performedOn($post)
+            ->withProperties(['media_count' => $post->media()->count()])
+            ->log('post.created');
+
             return (new PostResource($post->load('media')))->response()->setStatusCode(201);
         });
     }
@@ -163,12 +169,21 @@ class PostController extends Controller
                 }
             }
 
+            activity()->useLog('post')
+            ->causedBy($request->user())
+            ->performedOn($post)
+            ->withProperties([
+                'removed_media_ids' => $id,
+                'added_media_count' => count($request->file('media', [])),
+            ])
+            ->log('post.updated');
+
             return new PostResource($post->load('media'));
         });
     }
 
     // DELETE /api/me/posts/{post}
-    public function destroy(Post $post)
+    public function destroy(Request $request, Post $post)
     {
         // $this->authorize('delete', $post);
 
@@ -187,6 +202,11 @@ class PostController extends Controller
             }
             $post->delete(); // soft delete post
         });
+
+        activity()->useLog('post')
+        ->causedBy($request->user())
+        ->performedOn($post)
+        ->log('post.deleted');
 
         return response()->json(['meta' => ['message' => 'Post deleted']]);
     }

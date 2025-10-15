@@ -27,6 +27,10 @@ class AuthController extends Controller
         event(new Registered($user)); // untuk kebutuhan emailVerify
         // $user->sendEmailVerificationNotification();
 
+        activity()->useLog('auth')->causedBy($user)->withProperties([
+        'ip' => $request->ip(),
+        ])->log('auth.registered');
+
         // ======= Generate Token ======= -> IF DID NOT SET DEVICE NAME, USE UUID
         $tokenName = $request->string('device_name') ?: 'api-'.Str::uuid();
         $token = $user->createToken($tokenName, ['*'])->plainTextToken;
@@ -65,6 +69,10 @@ class AuthController extends Controller
             'user_agent'    => substr((string)$request->header('User-Agent'), 0, 500),
         ])->save();
 
+        activity()->useLog('auth')->causedBy($user)->withProperties([
+        'ip' => $request->ip(),
+        ])->log('auth.logged_in');
+
         return response()->json([
             'data' => [
                 'id'         => $user->id,
@@ -88,6 +96,10 @@ class AuthController extends Controller
         $request->user()->currentAccessToken()?->delete();
 
         $request->user()->tokens()->delete();
+
+        activity()->useLog('auth')->causedBy($request->user())->withProperties([
+        'ip' => $request->ip(),
+        ])->log('auth.logged_out');
 
         return response()->json([
             'meta' => ['message' => 'Logged out'],

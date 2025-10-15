@@ -18,6 +18,12 @@ class PrivacyController extends Controller
         $profile->visibility = $data['visibility'];
         $profile->save();
 
+        activity()->useLog('profile')
+        ->causedBy($request->user())
+        ->performedOn($profile)
+        ->withProperties(['visibility' => $data['visibility']])
+        ->log('profile.visibility_changed');
+
         return response()->json([
             'data' => [
                 'user_id'    => $request->user()->id,

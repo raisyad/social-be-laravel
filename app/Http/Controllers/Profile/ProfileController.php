@@ -127,6 +127,13 @@ class ProfileController extends Controller
 
         $profile = $user->load('profile')->profile;
 
+        activity()->useLog('profile')
+        ->causedBy($request->user())
+        ->performedOn($user->profile)
+        ->withProperties([
+            'changes' => $user->profile->getChanges(),
+        ])->log('profile.updated');
+
         // Kembalikan field yang diharapkan test:
         return response()->json([
             'data' => [

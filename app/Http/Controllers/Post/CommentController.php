@@ -63,6 +63,12 @@ class CommentController extends Controller
             return $c;
         });
 
+        activity()->useLog('comment')
+        ->causedBy($request->user())
+        ->performedOn($post)
+        ->withProperties(['comment_id' => $comment->id])
+        ->log('comment.created');
+
         return response()->json(['data' => $comment->load('user:id,username')], 201);
     }
 
@@ -75,6 +81,11 @@ class CommentController extends Controller
 
         $comment->update(['content' => (string) $request->input('content')]);
 
+        activity()->useLog('comment')
+        ->causedBy($request->user())
+        ->performedOn($comment)
+        ->log('comment.updated');
+
         return response()->json(['data' => $comment->fresh()->load('user:id,username')]);
     }
 
@@ -83,7 +94,7 @@ class CommentController extends Controller
     {
         $this->authorize('delete', $comment);
 
-        DB::transaction(function () use ($comment) {
+        DB::transaction(function () use ($comment, $request) {
             $comment->delete(); // soft delete
 
             // Race condition
@@ -99,6 +110,11 @@ class CommentController extends Controller
                 'comments_count' => DB::raw('CASE WHEN comments_count > 0 THEN comments_count - 1 ELSE 0 END'),
                 'updated_at'     => now(),
             ]);
+
+            activity()->useLog('comment')
+            ->causedBy($request->user())
+            ->performedOn($comment)
+            ->log('comment.deleted');
         });
 
         return response()->json(['meta' => ['message' => 'Comment deleted']]);

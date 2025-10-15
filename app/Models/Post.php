@@ -8,14 +8,30 @@ use App\Models\PostMedia;
 use App\Models\PostComment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Post extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, LogsActivity;
+
+    protected static $logName = 'post';
+    protected static $logAttributes = ['content', 'media', 'user_id'];
+    protected static $logOnlyDirty = true;     // hanya perubahan
+    protected static $submitEmptyLogs = false; // jangan log jika tidak ada perubahan
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['content', 'media', 'user_id'])
+            ->logOnlyDirty()
+            ->dontSubmitEmptyLogs();
+    }
 
     protected $fillable = [
         'user_id',
-        'content'
+        'content',
+        'media'
     ];
 
     protected $guarded = [];
@@ -52,5 +68,11 @@ class Post extends Model
     public function isLikedBy(User $user): bool
     {
         return $this->likers()->where('users.id', $user->id)->exists();
+    }
+
+    // custom description
+    public function getDescriptionForEvent(string $eventName): string
+    {
+        return "post.{$eventName}"; // created/updated/deleted
     }
 }

@@ -27,7 +27,7 @@ class UpdateProfileRequest extends FormRequest
             'birthdate' => ['nullable','date','before:today'],
             'gender'    => ['nullable','in:male,female'],
 
-            // file opsional; FE bisa kirim multipart/form-data
+            // FE bisa kirim multipart/form-data
             'avatar'    => ['nullable','image','mimes:jpg,jpeg,png','max:2048'],
             'cover'     => ['nullable','image','mimes:jpg,jpeg,png','max:4096'],
         ];

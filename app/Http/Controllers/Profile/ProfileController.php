@@ -142,8 +142,8 @@ class ProfileController extends Controller
                 'bio'        => $profile->bio,
                 'gender'     => $profile->gender,
                 'birth_date' => $profile->birth_date,
-                'avatar_url' => $profile->avatar_url, // ← cocok dengan test
-                'cover_url'  => $profile->cover_url,  // ← cocok dengan test
+                'avatar_url' => $profile->avatar_url,
+                'cover_url'  => $profile->cover_url,
             ],
             'meta' => ['message' => 'Profile updated'],
         ]);

@@ -8,17 +8,19 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Post;
 use App\Models\PostComment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Policies\ProfilePolicy;
 
 class CommentController extends Controller
 {
     use AuthorizesRequests;
+
     // GET /api/posts/{post}/comments
     public function index(Request $request, Post $post)
     {
         // bila post milik user private, hormati sama seperti like
         $owner = $post->user;
         $viewer = $request->user();
-        if (! app(\App\Policies\ProfilePolicy::class)->view($viewer, $owner)) {
+        if (!app(ProfilePolicy::class)->view($viewer, $owner)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -47,7 +49,7 @@ class CommentController extends Controller
 
         $owner  = $post->user;
         $viewer = $request->user();
-        if (! app(\App\Policies\ProfilePolicy::class)->view($viewer, $owner)) {
+        if (!app(ProfilePolicy::class)->view($viewer, $owner)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -98,7 +100,7 @@ class CommentController extends Controller
             $comment->delete(); // soft delete
 
             // Race condition
-            $post = \App\Models\Post::lockForUpdate()->find($comment->post_id);
+            $post = Post::lockForUpdate()->find($comment->post_id);
             if ($post && $post->comments_count > 0) {
                 $post->decrement('comments_count');
             }

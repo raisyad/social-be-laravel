@@ -23,6 +23,5 @@ class PostCommentPolicy
     public function delete(User $user, PostComment $comment): bool
     {
         return $user->id === $comment->user_id || $user->id === $comment->post->user_id;
-        // opsional: pemilik post juga boleh hapus komentar di post-nya
     }
 }

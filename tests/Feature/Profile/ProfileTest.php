@@ -125,8 +125,8 @@ class ProfileTest extends TestCase
         $avatarPath = $res->json('data.avatar_url');
         $coverPath  = $res->json('data.cover_url');
 
-        // Kalau resource-mu mengembalikan full URL, ekstrak path-nya dulu jika perlu.
-        // Di sini kita asumsikan kamu menyimpan RELATIVE PATH ke DB.
+        // Kalau resource mengembalikan full URL, ekstrak path-nya dulu jika perlu.
+        // asumsikan menyimpan RELATIVE PATH ke DB.
         $this->assertTrue(Storage::disk('public')->exists($avatarPath));
         $this->assertTrue(Storage::disk('public')->exists($coverPath));
     }

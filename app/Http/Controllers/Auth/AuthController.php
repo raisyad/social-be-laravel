@@ -25,7 +25,6 @@ class AuthController extends Controller
         ]);
 
         event(new Registered($user)); // untuk kebutuhan emailVerify
-        // $user->sendEmailVerificationNotification();
 
         activity()->useLog('auth')->causedBy($user)->withProperties([
         'ip' => $request->ip(),

@@ -27,7 +27,7 @@ class UserProfileResource extends JsonResource
 
             'stats' => [
                 'followers' => $user->followers()->count(),
-                'following' => $user->followings()->count(), // ← perbaiki
+                'following' => $user->followings()->count(),
                 'posts'     => $user->posts()->count(),
             ],
 

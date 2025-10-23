@@ -6,16 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Post;
+use App\Policies\ProfilePolicy;
 
 class LikeController extends Controller
 {
     public function index(Request $request, Post $post)
     {
-        $viewer = $request->user();      // boleh null
+        $viewer = $request->user();
         $owner  = $post->user;
 
         // Hormati privasi
-        if (! app(\App\Policies\ProfilePolicy::class)->view($viewer, $owner)) {
+        if (!app(ProfilePolicy::class)->view($viewer, $owner)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 
@@ -46,7 +47,7 @@ class LikeController extends Controller
 
         // hormati privacy: jika tidak boleh view pemilik, dilarang like
         $owner = $post->user;
-        if (! app(\App\Policies\ProfilePolicy::class)->view($viewer, $owner)) {
+        if (!app(ProfilePolicy::class)->view($viewer, $owner)) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
 

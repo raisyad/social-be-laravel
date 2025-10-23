@@ -9,6 +9,9 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use App\Models\UserProfile;
 use App\Models\Post;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -54,26 +57,26 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     // 1-1
-    public function profile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class, 'user_id');
     }
 
     // 1-many (post yang dia buat)
-    public function posts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function posts(): HasMany
     {
         return $this->hasMany(Post::class, 'user_id');
     }
 
     // followers & following (pivot user_follows)
-    public function followers(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function followers(): BelongsToMany
     {
         // orang lain yang mengikuti saya
         return $this->belongsToMany(User::class, 'user_follows', 'followee_id', 'follower_id')
             ->withPivot(['status','approved_at']);
     }
 
-    public function followings(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    public function followings(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_follows', 'follower_id', 'followee_id')
         ->withPivot(['status','approved_at']);

@@ -36,7 +36,6 @@ class EmailVerificationController extends Controller
         }
 
         if ($user->hasVerifiedEmail()) {
-            // opsional: redirect ke FE atau balas JSON
             return response()->json(['meta' => ['message' => 'Email already verified']]);
         }
 

@@ -8,7 +8,6 @@ class UserProfile extends Model
 {
     protected $table = 'user_profiles';
 
-    // PRIMARY KEY tabel ini adalah user_id (bukan id)
     protected $primaryKey = 'user_id';
     public $incrementing = false;
     protected $keyType = 'int';
@@ -23,7 +22,7 @@ class UserProfile extends Model
         'website',
         'avatar_url',
         'cover_url',
-        'visibility', // penting utk privacy
+        'visibility',
     ];
 
     public function user()

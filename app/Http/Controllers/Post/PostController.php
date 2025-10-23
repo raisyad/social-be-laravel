@@ -17,11 +17,11 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 class PostController extends Controller
 {
     use AuthorizesRequests;
+
     // GET /api/users/{user}/posts  (profil orang)
     public function indexByUser(Request $request, $userId)
     {
-        $user   = \App\Models\User::with('profile')->findOrFail($userId);
-        // $viewer = auth('sanctum')->user(); // bisa null
+        $user   = User::with('profile')->findOrFail($userId);
         $viewer = $request->user();
 
         if ($user->isPrivate()) {
@@ -48,12 +48,12 @@ class PostController extends Controller
             }
         }
 
-        $posts = \App\Models\Post::with('media')
+        $posts = Post::with('media')
             ->where('user_id', $user->id)
             ->latest('id')
             ->paginate(10);
 
-        return \App\Http\Resources\PostResource::collection($posts);
+        return PostResource::collection($posts);
     }
 
     // GET /api/me/posts (punya sendiri)
@@ -95,12 +95,12 @@ class PostController extends Controller
             }
         }
 
-        $posts = \App\Models\Post::with('media')
+        $posts = Post::with('media')
             ->where('user_id', $user->id)
             ->latest('id')
             ->paginate(12);
 
-        return \App\Http\Resources\PostResource::collection($posts);
+        return PostResource::collection($posts);
     }
 
     // POST /api/me/posts
@@ -112,7 +112,6 @@ class PostController extends Controller
                 'content' => (string) $request->input('content'),
             ]);
 
-            // upload media (optional)
             if ($request->hasFile('media')) {
                 $order = 1;
                 foreach ($request->file('media') as $file) {
@@ -150,8 +149,6 @@ class PostController extends Controller
             foreach ((array) $request->input('remove_media_ids', []) as $id) {
                 $media = $post->media()->whereKey($id)->first();
                 if ($media) {
-                    // optional: juga hapus file fisik kalau path lokal
-                    // Storage::disk('public')->delete(str_replace(Storage::disk('public')->url(''), '', $media->media_url));
                     $media->delete();
                 }
             }
@@ -185,19 +182,11 @@ class PostController extends Controller
     // DELETE /api/me/posts/{post}
     public function destroy(Request $request, Post $post)
     {
-        // $this->authorize('delete', $post);
-
-
-        // $post->delete();
-
-        // return response()->json(['meta' => ['message' => 'Post deleted']]);
 
         $this->authorize('delete', $post);
 
         DB::transaction(function () use ($post) {
             foreach ($post->media as $m) {
-                // Optional: hapus file fisik jika path lokal
-                // Storage::disk('public')->delete($m->media_url);
                 $m->delete(); // ini hard delete row media
             }
             $post->delete(); // soft delete post
